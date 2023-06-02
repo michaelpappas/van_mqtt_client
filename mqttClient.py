@@ -71,7 +71,9 @@ def on_disconnect(client, user_data, disconnection_result_code):
 
 
 def on_message(client, userdata, msg):
-    """Callback called when a message is received on a subscribed topic."""
+    """Callback called when a message is received on a subscribed topic
+       message topic is split and various function are called depending on the first
+       topic called."""
     logger.debug("Received message for topic {}: {}".format( msg.topic, msg.payload))
 
     data = None
@@ -81,17 +83,17 @@ def on_message(client, userdata, msg):
     except json.JSONDecodeError as e:
         logger.error("JSON Decode Error: " + msg.payload.decode("UTF-8"))
 
-    curr_topic = msg.topic.split("/")
+    curr_topics = msg.topic.split("/")
 
-    if curr_topic[0] == "water":
+    if curr_topics[0] == "water":
         mqtt_water(curr_topic, data)
+    elif msg.topic[0] == "battery":
+        #parse battery data and add to db
+        print("tacos")
     elif msg.topic == "connect/water":
         water_consumption = session.query(Water).order_by(desc(Water.timestamp)).first()
         water_message = f"{water_consumption}".encode()
         client.publish(topic = "connect/water", payload = water_message)
-    elif msg.topic[0] == "battery":
-        #parse battery data and add to db
-        print("tacos")
     else:
         logger.error("Unhandled message topic {} with payload " + str(msg.topic, msg.payload))
 
@@ -131,13 +133,15 @@ def init_mqtt():
     client.connect(BROKER_HOST, BROKER_PORT)                                                   # (18)
 
 
-## response function
+## water mqtt topic function
 def mqtt_water(topic, payload):
     """ parses topic and executes required function depending on topic and payload"""
     if topic[1] == "reset":
         new_water = Water(consumption = 0)
         new_water.session.add()
         new_water.session.commit()
+        client.publish(topic = "water/reset", payload = f"{0}".encode())
+
     elif topic[1] == "total":
         new_water = Water(consumption = float(payload))
         new_water.session.add()
