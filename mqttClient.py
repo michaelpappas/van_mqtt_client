@@ -41,7 +41,7 @@ BROKER_PORT = 1883
 CLIENT_ID = "pi"
 client = None  # MQTT client instance. See init_mqtt()
 ALL_TOPICS = "*"
-WATER_CAP = 21 # Total water tank capacity
+WATER_CAP = 21 # Total water tank capacity in gallons
 
 """
 MQTT Related Functions and Callbacks
@@ -83,13 +83,14 @@ def on_message(client, userdata, msg):
     except json.JSONDecodeError as e:
         logger.error("JSON Decode Error: " + msg.payload.decode("UTF-8"))
 
-    curr_topics = msg.topic.split("/")
+    curr_topic = msg.topic.split("/")
 
-    if curr_topics[0] == "water":
+    if curr_topic[0] == "water":
         mqtt_water(curr_topic, data)
-    elif msg.topic[0] == "battery":
-        #parse battery data and add to db
-        print("tacos")
+
+    elif curr_topic[0] == "battery":
+        mqtt_battery(data)
+
     elif msg.topic == "connect/water":
         water_consumption = session.query(Water).order_by(desc(Water.timestamp)).first()
         water_message = f"{water_consumption}".encode()
@@ -147,6 +148,16 @@ def mqtt_water(topic, payload):
         new_water.session.add()
         new_water.session.commit()
 
+def mqtt_battery(payload):
+    """ parses mqtt payloat and adds to db"""
+    parsed_data = json.loads(payload)
+    batt_data = Battery(volts = parsed_data.volts,
+                        amps = parsed_data.current,
+                        remain = parsed_data.residual_capacity,
+                        percent = parsed_data.residual_capacity/parsed_data.nominal_capacity,
+                        temp1 = parsed_data.temperature01,
+
+                        )
 
 # Initialise Module
 init_mqtt()
