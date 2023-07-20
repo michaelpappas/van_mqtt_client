@@ -92,6 +92,7 @@ def on_message(client, userdata, msg):
         mqtt_battery(data)
 
     elif msg.topic == "connect/water":
+        print("connect water")
         water_consumption = session.query(Water).order_by(desc(Water.timestamp)).first()
         water_message = f"{water_consumption}".encode()
         client.publish(topic = "connect/water", payload = water_message)
