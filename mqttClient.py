@@ -88,10 +88,10 @@ def on_message(client, userdata, msg):
     if curr_topic[0] == "water":
         mqtt_water(curr_topic, data)
 
-    elif curr_topic[0] == "battery":
+    if curr_topic[0] == "battery":
         mqtt_battery(data)
 
-    elif msg.topic == "connect/water":
+    if msg.topic == "connect/water":
         print("connect water")
         water_consumption = session.query(Water).order_by(desc(Water.timestamp)).first()
         water_message = f"{water_consumption}".encode()
@@ -169,4 +169,4 @@ if __name__ == "__main__":
     logger.info("Listening for messages on topic '" + ALL_TOPICS + "'. Press Control + C to exit.")
 
     client.loop_start()                                                                        # (20)
-    signal.pause()
+    # signal.pause()
