@@ -1,3 +1,6 @@
 Flask
 Flask-DebugToolbar
 python-dotenv
+sqlalchemy
+paho-mqtt
+psycopg2
