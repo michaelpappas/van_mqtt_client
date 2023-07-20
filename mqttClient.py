@@ -91,7 +91,7 @@ def on_message(client, userdata, msg):
     if curr_topic[0] == "battery":
         mqtt_battery(data)
 
-    if msg.topic == "connect/water":
+    if msg.topic == "water":
         print("connect water")
         water_consumption = session.query(Water).order_by(desc(Water.timestamp)).first()
         water_message = f"{water_consumption}".encode()
