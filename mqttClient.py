@@ -169,4 +169,4 @@ if __name__ == "__main__":
     logger.info("Listening for messages on topic '" + ALL_TOPICS + "'. Press Control + C to exit.")
 
     client.loop_start()                                                                        # (20)
-    # signal.pause()
+    signal.pause()
