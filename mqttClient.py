@@ -40,7 +40,7 @@ BROKER_HOST = "localhost"
 BROKER_PORT = 1883
 CLIENT_ID = "pi"
 client = None  # MQTT client instance. See init_mqtt()
-ALL_TOPICS = "*"
+ALL_TOPICS = "#"
 WATER_CAP = 21 # Total water tank capacity in gallons
 
 """
@@ -82,7 +82,7 @@ def on_message(client, userdata, msg):
         data = json.loads(msg.payload.decode("UTF-8"))
     except json.JSONDecodeError as e:
         logger.error("JSON Decode Error: " + msg.payload.decode("UTF-8"))
-
+    print(data, msg.topic)
     curr_topic = msg.topic.split("/")
 
     if curr_topic[0] == "water":
