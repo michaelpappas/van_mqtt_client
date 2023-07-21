@@ -95,7 +95,7 @@ def on_message(client, userdata, msg):
         print("connect water")
         water_consumption = session.query(Water).order_by(desc(Water.timestamp)).first()
         water_message = f"{water_consumption}".encode()
-        client.publish(topic = "connect/water", payload = water_consumption)
+        client.publish("connect/water", water_consumption)
     else:
         logger.error("Unhandled message topic {} with payload " + str(msg.topic, msg.payload))
 
