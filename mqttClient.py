@@ -82,7 +82,7 @@ def on_message(client, userdata, msg):
         data = json.loads(msg.payload.decode("UTF-8"))
     except json.JSONDecodeError as e:
         logger.error("JSON Decode Error: " + msg.payload.decode("UTF-8"))
-    print(data, msg.topic)
+    print(msg.payload, msg.topic)
     curr_topic = msg.topic.split("/")
 
     if curr_topic[0] == "water":
