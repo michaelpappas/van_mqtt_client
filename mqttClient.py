@@ -74,30 +74,32 @@ def on_message(client, userdata, msg):
     """Callback called when a message is received on a subscribed topic
        message topic is split and various function are called depending on the first
        topic called."""
-    logger.debug("Received message for topic {}: {}".format( msg.topic, msg.payload))
+    logger.debug("Received message for topic {}: {}".format( msg.topic, msg.payload.decode("utf-8")))
 
     data = None
+    if msg.topic == "test":
+        client.publish("response","received")
 
     try:
         data = json.loads(msg.payload.decode("UTF-8"))
     except json.JSONDecodeError as e:
         logger.error("JSON Decode Error: " + msg.payload.decode("UTF-8"))
-    print(msg.payload, msg.topic)
-    curr_topic = msg.topic.split("/")
 
-    if curr_topic[0] == "water":
-        mqtt_water(curr_topic, data)
+    curr_topics = msg.topic.split("/")
 
-    if curr_topic[0] == "battery":
-        mqtt_battery(data)
+    if curr_topics[0] == "water":
+        client.publish("response", '{"message": "water"}')
+        print("water topic")
+    #    mqtt_water(curr_topics, data)
 
-    if msg.topic == "water":
-        print("connect water")
-        water_consumption = session.query(Water).order_by(desc(Water.timestamp)).first()
-        water_message = f"{water_consumption}".encode()
-        client.publish("connect/water", water_consumption)
-    else:
-        logger.error("Unhandled message topic {} with payload " + str(msg.topic, msg.payload))
+
+    if curr_topics[0] == "battery":
+        client.publish("response",'{"message": "battery"}')
+        print("battery topic")
+    #    mqtt_battery(data)
+
+    #else:
+    #    logger.error("Unhandled message topic {} with payload " + str(msg.topic, msg.payload.decode("utf-8")))
 
 
 
@@ -138,12 +140,17 @@ def init_mqtt():
 ## water mqtt topic function
 def mqtt_water(topic, payload):
     """ parses topic and executes required function depending on topic and payload"""
+    breakpoint()
     if topic[1] == "reset":
         new_water = Water(consumption = 0)
         new_water.session.add()
         new_water.session.commit()
-        client.publish(topic = "water/reset", payload = f"{0}".encode())
-
+        client.publish(topic = "water/reset", payload = "0")
+    elif topic[1] == "connect":
+        print("connect")
+        #water_consumption = session.query(Water).order_by(desc(Water.timestamp)).first()
+        #water_message = "1234".encode()
+        client.publish("water/connect", "1234")
     elif topic[1] == "total":
         new_water = Water(consumption = float(payload))
         new_water.session.add()
