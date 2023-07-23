@@ -90,7 +90,7 @@ def on_message(client, userdata, msg):
     if curr_topics[0] == "water":
         client.publish("response", '{"message": "water"}')
         print("water topic")
-    #    mqtt_water(curr_topics, data)
+        mqtt_water(data)
 
 
     if curr_topics[0] == "battery":
@@ -138,21 +138,22 @@ def init_mqtt():
 
 
 ## water mqtt topic function
-def mqtt_water(topic, payload):
+def mqtt_water(data):
     """ parses topic and executes required function depending on topic and payload"""
     breakpoint()
-    if topic[1] == "reset":
+    if data["message"] == "reset":
         new_water = Water(consumption = 0)
         new_water.session.add()
         new_water.session.commit()
-        client.publish(topic = "water/reset", payload = "0")
-    elif topic[1] == "connect":
+
+    elif data["message"] == "connect":
         print("connect")
         #water_consumption = session.query(Water).order_by(desc(Water.timestamp)).first()
         #water_message = "1234".encode()
-        client.publish("water/connect", "1234")
-    elif topic[1] == "total":
-        new_water = Water(consumption = float(payload))
+        client.publish("water", '{"consumption":"1234"}')
+    elif data["message"] == "total":
+        total = data["total"]
+        new_water = Water(consumption = float(total))
         new_water.session.add()
         new_water.session.commit()
 
