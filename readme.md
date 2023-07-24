@@ -6,7 +6,6 @@ A flask app is also included to allow for an endpoint that resets water consumpt
 
 ## Table of Contents
 - [Manual Installation](#manual-installation)
-- [Query Configuration](#query-configuration)
 - [Dev Environment](#development-environment)
 - [Project Structure](#project-structure)
 - [Further Improvements](#further-improvements)
