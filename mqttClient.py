@@ -87,10 +87,9 @@ def on_message(client, userdata, msg):
 
     curr_topics = msg.topic.split("/")
 
-    if curr_topics[0] == "water":
-        client.publish("response", '{"message": "water"}')
-        print("water topic")
-        mqtt_water(curr_topics[1], data)
+    if msg.topic == "water/update":
+        print("water update received")
+        update_water(data)
 
     elif msg.topic == "connect/water":
         print("water meter connected")
@@ -141,19 +140,18 @@ def init_mqtt():
 
 
 ## water mqtt topic function
-def mqtt_water(topic, data = None):
-    """ executes required function depending on topic and payload """
+def update_water(data):
+    """ updates water consumption with data from MQTT payload"""
 
-    if topic == "reset":
-        new_water = Water(consumption = 0)
-        new_water.session.add()
-        new_water.session.commit()
+    consumption = data["consumption"]
+    prev_consumption = Water.query.order_by(desc(Water.timestamp)).first()
+    current_consumption = prev_consumption + consumption
+    percent_consumed = (current_consumption / 21) / 100
+    percent_remain = 100 - percent_consumed
 
-    elif topic == "update":
-        total = data["total"]
-        new_water = Water(consumption = float(total))
-        new_water.session.add()
-        new_water.session.commit()
+    new_water = Water(consumption = consumption, percent_remain = percent_remain )
+    new_water.session.add()
+    new_water.session.commit()
 
 def mqtt_battery(payload):
     """ parses mqtt payloat and adds to db"""

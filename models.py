@@ -20,7 +20,7 @@ engine = create_engine(db_url)
 # Create a base class for declarative table definitions
 Base = declarative_base()
 
-# Define the Battery class representing the table
+# Define the Water class representing the table
 class Water(Base):
     __tablename__ = 'water'
 
