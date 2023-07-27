@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 
 # Define MQTT broker and topic information
-broker_address = "YOUR_MQTT_BROKER_ADDRESS"
+broker_address = "192.168.1.86"
 broker_port = 1883
 status_topic = "$SYS/broker/clients/connected"
 
