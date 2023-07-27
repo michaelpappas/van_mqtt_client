@@ -3,7 +3,7 @@ import paho.mqtt.client as mqtt
 # Define MQTT broker and topic information
 broker_address = "192.168.1.86"
 broker_port = 1883
-status_topic = "$SYS/broker/clients/connected"
+status_topic = "$SYS/broker/connection/+/state"
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -13,8 +13,9 @@ def on_connect(client, userdata, flags, rc):
         print(f"Failed to connect, error code: {rc}")
 
 def on_message(client, userdata, message):
-    if message.topic == status_topic:
-        print(f"Another device connected: {message.payload.decode()}")
+    if message.topic.startswith("$SYS/broker/connection/"):
+        client_id = message.topic.split("/")[-2]
+        print(f"Device connected: {client_id}")
 
 # Create MQTT client instance for monitoring
 monitoring_client = mqtt.Client()
