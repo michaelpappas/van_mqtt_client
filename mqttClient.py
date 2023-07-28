@@ -138,13 +138,12 @@ def init_mqtt():
     # Connect to Broker.
     client.connect(BROKER_HOST, BROKER_PORT)                                                   # (18)
 
-
-## water mqtt topic function
 def update_water(data):
-    """ updates water consumption with data from MQTT payload"""
+    """ updates water consumption with data from MQTT payload
+        payload must be formated as {"consumption": "1234"} """
 
-    consumption = data["consumption"]
-    prev_consumption = Water.query.order_by(desc(Water.timestamp)).first()
+    consumption = float(data["consumption"])
+    prev_consumption = session.query(Water).order_by(desc(Water.timestamp)).first()
     current_consumption = prev_consumption + consumption
     percent_consumed = (current_consumption / 21) / 100
     percent_remain = 100 - percent_consumed
