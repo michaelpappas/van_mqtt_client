@@ -19,6 +19,8 @@ db_host = 'localhost'
 db_port = '5432'
 db_name = 'van_data'
 
+TANK_CAPACITY = 21
+
 db_url = f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
 # Congifure db connection
@@ -86,7 +88,7 @@ def on_message(client, userdata, msg):
         logger.error("JSON Decode Error: " + msg.payload.decode("UTF-8"))
 
     curr_topics = msg.topic.split("/")
-
+    breakpoint()
     if msg.topic == "water/update":
         print("water update received")
         update_water(data)
@@ -143,14 +145,15 @@ def update_water(data):
         payload must be formated as {"consumption": "1234"} """
 
     consumption = float(data["consumption"])
-    prev_consumption = session.query(Water).order_by(desc(Water.timestamp)).first()
-    current_consumption = prev_consumption + consumption
-    percent_consumed = (current_consumption / 21) / 100
+    last_water = session.query(Water).order_by(Water.timestamp.desc()).first()
+    breakpoint()
+    current_consumption = float(last_water.consumption) + consumption
+    percent_consumed = (TANK_CAPACITY - current_consumption)/100
     percent_remain = 100 - percent_consumed
 
     new_water = Water(consumption = consumption, percent_remain = percent_remain )
-    new_water.session.add()
-    new_water.session.commit()
+    session.add(new_water)
+    session.commit()
 
 def mqtt_battery(payload):
     """ parses mqtt payloat and adds to db"""
